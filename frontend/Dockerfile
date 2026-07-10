@@ -1,40 +1,30 @@
-# Stage 1: Build
+# Stage 1: Build the Vite app
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install all dependencies (dev deps are needed to build)
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy source code
+# Copy source and build
 COPY . .
-
-# Set environment variables
 ENV NODE_ENV=production
-
-# Build the frontend
 RUN npm run build
 
-# Stage 2: Serve with Nginx
+# Stage 2: Serve the static build with Nginx
 FROM nginx:stable-alpine
 
-# Remove default Nginx static assets
+# Remove the default Nginx static assets
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy built assets from builder stage
+# Copy the built assets and custom Nginx config
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
 
-# Health check
-#HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#  CMD curl -f http://localhost/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/ || exit 1
 
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

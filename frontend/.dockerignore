@@ -1,7 +1,10 @@
 node_modules
+dist
 npm-debug.log
 .env
+.env.*
 .git
 .gitignore
 Dockerfile
-Jenkinsfile
+.dockerignore
+*.md

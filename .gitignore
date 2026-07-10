@@ -1,6 +1,12 @@
-.terraform/
+terraform/.terraform/
+terraform/.terraform/
+# Terraform
+**/.terraform/
 *.tfstate
-*.tfstate.backup
-*.swp
-*.swo
+*.tfstate.*
+.terraform.lock.hcl
+crash.log
 
+# Terraform variable files
+*.tfvars
+*.tfvars.json

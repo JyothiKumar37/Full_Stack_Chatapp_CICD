@@ -1,7 +1,6 @@
-import { generateToken } from "../lib/utils.js";
+import { generateToken, assertValidImage } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -94,10 +93,15 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    // Store the image inline as a base64 data URL (renders directly in <img src>).
+    const imageError = assertValidImage(profilePic);
+    if (imageError) {
+      return res.status(400).json({ message: imageError });
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      { profilePic },
       { new: true }
     );
 

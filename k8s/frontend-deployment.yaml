@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: chatapp-frontend:local
+          image: 034768441662.dkr.ecr.ap-south-1.amazonaws.com/chatapp-frontend
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

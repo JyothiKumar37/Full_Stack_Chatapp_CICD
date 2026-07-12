@@ -34,6 +34,26 @@ pipeline {
         script { env.GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() }
       }
     }
+   
+   stage('Skip CI') {
+    steps {
+        script {
+            def msg = sh(
+                script: "git log -1 --pretty=%B",
+                returnStdout: true
+            ).trim()
+
+            if (msg.contains("[skip ci]")) {
+                echo "Skipping Jenkins-generated commit"
+                currentBuild.result = 'NOT_BUILT'
+                return
+            }
+        }
+    }
+}
+
+
+
 
     stage('Install & Unit Tests') {
       parallel {

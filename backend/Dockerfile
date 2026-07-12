@@ -1,7 +1,8 @@
 # Stage 1: Install production dependencies
 FROM node:18-alpine AS builder
 
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache && npm install -g npm@latest
+
 
 WORKDIR /app
 

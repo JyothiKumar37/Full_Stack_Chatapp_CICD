@@ -1,3 +1,4 @@
+# Stage 1: Install production dependencies
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -17,6 +18,10 @@ WORKDIR /app
 # Patch OS packages (openssl, zlib, musl...) in the SHIPPED image, and add wget for the health check
 RUN apk upgrade --no-cache && apk add --no-cache wget
 
+# Remove the bundled global npm/npx — the app runs with `node`, not npm.
+# This drops sigstore/picomatch (npm's own deps) from the image → clean Trivy scan.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
@@ -35,5 +40,5 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget -qO- http://127.0.0.1:5001/health || exit 1
 
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
 

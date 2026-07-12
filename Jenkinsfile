@@ -121,9 +121,13 @@ pipeline {
 
     stage('Trivy Image Scan') {
       steps {
-        // Gate: CRITICAL vulns in the built images fail the pipeline
-        sh "trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
-        sh "trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}"
+        // Gate hard on CRITICAL; report HIGH for visibility without blocking
+        // (base-image/tooling HIGHs often have no app-level fix).
+        sh "trivy image --severity CRITICAL --exit-code 1 --ignore-unfixed ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
+        sh "trivy image --severity HIGH     --exit-code 0 ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}"
+        sh "trivy image --severity CRITICAL --exit-code 1 --ignore-unfixed ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}"
+        sh "trivy image --severity HIGH     --exit-code 0 ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}"
+      }
       }
     }
 

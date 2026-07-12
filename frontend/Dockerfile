@@ -1,6 +1,8 @@
 # Stage 1: Build the Vite app
 FROM node:18-alpine AS builder
 
+RUN apk upgrade --no-cache
+
 WORKDIR /app
 
 # Install all dependencies (dev deps are needed to build)

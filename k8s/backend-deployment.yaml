@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: 034768441662.dkr.ecr.ap-south-1.amazonaws.com/chatapp-backend:10
+          image: 034768441662.dkr.ecr.ap-south-1.amazonaws.com/chatapp-backend:11
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5001

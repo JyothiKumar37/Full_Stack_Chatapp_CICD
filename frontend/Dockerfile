@@ -1,7 +1,4 @@
-# Stage 1: Build the Vite app
-FROM node:18-alpine AS builder
-
-RUN apk upgrade --no-cache
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -14,8 +11,11 @@ COPY . .
 ENV NODE_ENV=production
 RUN npm run build
 
-# Stage 2: Serve the static build with Nginx
+# Stage 2: Serve the static build with Nginx (this is the image that ships)
 FROM nginx:stable-alpine
+
+# Patch OS packages (openssl, etc.) in the SHIPPED image
+RUN apk upgrade --no-cache
 
 # Remove the default Nginx static assets
 RUN rm -rf /usr/share/nginx/html/*
@@ -30,3 +30,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget -qO- http://127.0.0.1/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
+

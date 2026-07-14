@@ -172,9 +172,17 @@ pipeline {
             sed -i -E "s#image: .*${BACKEND_REPO}:.*#image: ${ECR_REGISTRY}/${BACKEND_REPO}:${IMAGE_TAG}#"   k8s/backend-deployment.yaml
             sed -i -E "s#image: .*${FRONTEND_REPO}:.*#image: ${ECR_REGISTRY}/${FRONTEND_REPO}:${IMAGE_TAG}#" k8s/frontend-deployment.yaml
 
-            git add k8s/backend-deployment.yaml k8s/frontend-deployment.yaml
-            git commit -m "ci: deploy ${BACKEND_REPO}/${FRONTEND_REPO}:${IMAGE_TAG} [skip ci]" || echo "no changes"
-            git push https://${GIT_USER}:${GIT_TOKEN}@${GITOPS_REPO} HEAD:master
+            git add .
+
+            if git diff --cached --quiet
+            then
+                echo "No manifest changes detected."
+                exit 0
+            fi
+
+            git commit -m "Deploy Build ${IMAGE_TAG}"
+
+            git push origin ${GITOPS_BRANCH}
           """
         }
         // ArgoCD (auto-sync) picks up the commit and rolls out the new images.

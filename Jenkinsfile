@@ -16,7 +16,8 @@ pipeline {
     IMAGE_TAG      = "${BUILD_NUMBER}"          // immutable, traceable tag
     SONAR_SCANNER  = tool 'sonar-scanner'       // SonarScanner CLI installation
     // GitOps repo that ArgoCD watches (can be the same repo)
-    GITOPS_REPO    = 'github.com/JyothiKumar37/Full_Stack_Chatapp_CICD.git'
+    GITOPS_REPO    = 'github.com/JyothiKumar37/Full_Stack_Chatapp_GITOPS.git'
+    GITOPS_BRANCH = 'master'
   }
 
   options {
@@ -35,24 +36,6 @@ pipeline {
       }
     }
    
-   stage('Skip CI') {
-    steps {
-        script {
-            def msg = sh(
-                script: "git log -1 --pretty=%B",
-                returnStdout: true
-            ).trim()
-
-            if (msg.contains("[skip ci]")) {
-                echo "Skipping Jenkins-generated commit"
-                currentBuild.result = 'NOT_BUILT'
-                return
-            }
-        }
-    }
-}
-
-
 
 
     stage('Install & Unit Tests') {
@@ -169,6 +152,19 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'github-token',
                           usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
           sh """
+            
+            echo "Cloning GitOps Repository..."
+
+            rm -rf gitops
+
+            git clone --depth 1 --branch ${GITOPS_BRANCH} \
+            https://${GIT_USER}:${GIT_TOKEN}@github.com/JyothiKumar37/Full_Stack_Chatapp_GITOPS.git \
+            gitops
+
+            cd gitops
+
+
+
             git config user.email "jenkins@ci.local"
             git config user.name  "jenkins"
 

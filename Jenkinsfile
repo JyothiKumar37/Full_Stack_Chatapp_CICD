@@ -152,7 +152,9 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'github-token',
                           usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
           sh """
-            
+              
+           set -e
+  
             echo "Cloning GitOps Repository..."
 
             rm -rf gitops
@@ -181,6 +183,9 @@ pipeline {
             fi
 
             git commit -m "Deploy Build ${IMAGE_TAG}"
+             
+            git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@${GITOPS_REPO}
+
 
             git push origin ${GITOPS_BRANCH}
           """

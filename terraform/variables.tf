@@ -19,7 +19,7 @@ variable "cluster_version" {
 variable "node_instance_type" {
   description = "Worker node instance type (t3.micro is free-tier eligible)"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.small"
 }
 
 variable "desired_size" {
